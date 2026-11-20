@@ -16,16 +16,18 @@ npm run dev        # http://localhost:5173
 | 命令 | 作用 |
 | --- | --- |
 | `npm run dev` | 本地开发服务器（5173） |
-| `npm run test:run` | 运行 10 个测试文件 / 96 个用例 |
-| `npm run verify` | 串联门禁：`test:run && build` |
+| `npm run test:run` | 运行 14 个测试文件 / 136 个用例 |
+| `npm run verify` | 串联门禁：`test:run && build && check:mp` |
 | `npm run build` | 生产构建到 `dist/` |
 | `npm run preview` | 本地预览构建产物 |
+| `npm run sync:mp` | 把共享内核与演示任务同步到 `miniprogram/` |
+| `npm run check:mp` | 校验小程序结构与共享内核未漂移 |
 
 环境：Node + npm；运行时依赖只有 `react@18.3.1` / `react-dom@18.3.1`。
 
 ## 2. 五分钟演示脚本
 
-1. 打开首页，页头显示账期 `2026-10`、`8 片区 · 98 阿姨 · 1800 工单`；五个页签对应 5 个模块。
+1. 打开首页，页头显示账期 `2026-10`、`8 片区 · 98 阿姨 · 1806 工单`（含 6 张 2026-11 在途任务）；五个页签对应 5 个模块。
 2. **M1 工单追溯**：按片区/状态/关键词筛选；点开任意工单看状态时间线、证据链、关联投诉与赔付；"新建派单"可创建新单并依次执行派单 → 签到 → 完成（缺签字会被拒绝）。
 3. **M2 赔付管理**：对已完成工单新建赔付（原因 + 金额），先"评估"看证据分与责任方，再提交；详情面板可审批；>500 元必须财务角色；重复提交与重复审批均为幂等。
 4. **M3 阿姨工时提成**：月结总表 98 人，点开阿姨看到质量系数来源（calculated / override）与逐单提成；可设人工覆盖系数并即时重算；支持 CSV 导出。
@@ -44,6 +46,9 @@ src/store/actions.js     写操作（幂等键、状态机、审批角色、错�
 src/store/selectors.js   派生数据（逐单调用 domain，不持久化损益）
 src/features/*/Page.jsx  5 个模块页面
 src/components/ui.jsx    通用组件（卡片、表格、筛选、分页、金额、条形图等）
+src/shared/              跨端共享内核（geo 距离、field-actions 打卡/完成）
+miniprogram/             阿姨端微信原生小程序（core 为同步生成的只读副本）
+scripts/                 sync-miniprogram / check-miniprogram
 dev-team/Agents/         8 个 Agent 定义（正文五段）+ dev-team/references/ 知识库
 ```
 
@@ -64,7 +69,7 @@ dev-team/Agents/         8 个 Agent 定义（正文五段）+ dev-team/referenc
 
 ## 5. 验证与证据
 
-- `npm run verify`：96 例全绿 + 生产构建成功（54 modules，JS 约 322 kB / gzip 约 99 kB）。
+- `npm run verify`：136 例全绿 + 生产构建成功（56 modules，JS 约 324 kB / gzip 约 99 kB）+ 小程序结构校验通过。
 - 测试覆盖：领域纯函数、selectors 种子对账、actions 状态机与幂等/审批角色、5 个页面 SSR 冒烟。
 - 生产就绪记分卡：见 `docs/05-测试与就绪记分卡.md`，当前总档 **Bronze**（短板：无鉴权、无指标）。
 
@@ -81,7 +86,7 @@ dev-team/Agents/         8 个 Agent 定义（正文五段）+ dev-team/referenc
 - 远端仓库：https://github.com/Rookiin/jingdaojia-ops-console（公开，`main` 已推送全部里程碑提交）。
 - 覆盖率工具未接入；以 A1–A10 断言与用例映射替代。
 - 浏览器交互未自动化（不引入 jsdom/Testing Library），靠演示脚本人工走查。
-- 工单明细规模 1,800（文档原目标 5,200），为演示性能下调，口径不变。
+- 工单明细规模 1,806（1,800 历史单 + 6 张在途任务；文档原目标 5,200），为演示性能下调，营收口径不变。
 
 ## 8. 里程碑
 
@@ -98,3 +103,15 @@ dev-team/Agents/         8 个 Agent 定义（正文五段）+ dev-team/referenc
 | `8d0511d` | 交付说明、过程记录、8 个 Agent 正文五段 |
 | `c1556aa` | 依赖锁版规则对齐 lockfile 实况 |
 | `f1e2235` | 页头"重置演示数据"入口；A2 笔误与文档计数修正 |
+| `d7db4fc` / `e0f862a` | 里程碑补齐；登记公开远端仓库 |
+
+## 9. 阿姨端小程序（演示）
+
+给保洁阿姨的微信原生小程序：只看自己的任务、到店定位打卡、拍服务前后照片、完成服务。**不创建工单**，只把既有工单从 `assigned` 推进到 `checked_in` 再到 `completed`。
+
+打开方式：
+1. 微信开发者工具 → 导入项目 → 目录选 `miniprogram/` → AppID 选测试号。
+2. 详情 → 本地设置 → 勾选"不校验合法域名……"。
+3. 选择阿姨 → 打开任务 → 用"模拟位置"填客户坐标（见 `docs/08-阿姨端小程序方案.md` 表格）→ 打卡 → 拍照 → 完成。
+
+规则：打卡需在客户地址 **300 米内**且至少 1 张服务前照片；完成需服务后照片；客户签字允许 Web 看板后补（`signature_pending`）。小程序与 Web 共用 `src/shared/field-actions.js` 与状态机，`npm run check:mp` 保证 `miniprogram/core` 与源码不漂移。两端数据各自本地存储、不实时同步，边界见 `docs/08` §5。
