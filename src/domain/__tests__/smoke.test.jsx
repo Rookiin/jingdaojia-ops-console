@@ -42,6 +42,7 @@ describe('SSR 冒烟（种子注入后逐页渲染）', () => {
     }
     expect(html).toContain('2026-10')
     expect(html).toContain('净到家保洁')
+    expect(html).toContain('重置演示数据')
     expect(html).not.toContain('页面渲染失败')
   })
 })

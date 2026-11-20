@@ -61,7 +61,7 @@ maxTurns: 60
 任务编号：<模块/单号，如 M2-赔付幂等与审批角色>
 结论：PASS / FAIL / 需澄清
 产出文件：<仓库相对路径或绝对路径，逐个列出>
-证据：npm run verify → 10 files / 96 passed + build 54 modules / 321.71 kB；关键断言 <A9/A10 等>
+证据：npm run verify → 10 files / 96 passed + build 54 modules / 约 322 kB；关键断言 <A9/A10 等>
 风险与待决：<契约歧义/未决口径/迁移触发条件>
 下一步：<交 frontend / devops / 项目总监的具体动作>
 ```

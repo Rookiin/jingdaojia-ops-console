@@ -1,5 +1,6 @@
 import { Component, useState } from 'react'
 import { useStore } from './store.js'
+import { resetDemoData } from './store/actions.js'
 import { EmptyState } from './components/ui.jsx'
 import OrdersPage from './features/orders/Page.jsx'
 import CompensationsPage from './features/compensations/Page.jsx'
@@ -40,6 +41,7 @@ class PageErrorBoundary extends Component {
 
 export default function App() {
   const [active, setActive] = useState('orders')
+  const [resetNotice, setResetNotice] = useState(null)
   const period = useStore((s) => s.meta?.period || '—')
   const storageError = useStore((s) => s.meta?.storageError || null)
   const validationErrors = useStore((s) => s.meta?.validationErrors || null)
@@ -49,6 +51,16 @@ export default function App() {
 
   const current = TABS.find((tab) => tab.id === active) || TABS[0]
   const CurrentPage = current.Component
+
+  function handleReset() {
+    const confirmed =
+      typeof window === 'undefined' || typeof window.confirm !== 'function'
+        ? true
+        : window.confirm('将清空本地修改并恢复基线演示数据，确定继续？')
+    if (!confirmed) return
+    const result = resetDemoData()
+    setResetNotice(result.ok ? '已恢复基线数据' : `重置失败：${result.code}`)
+  }
 
   return (
     <div className="app-shell">
@@ -69,6 +81,14 @@ export default function App() {
           <span className="header-meta-item">
             {districtCount} 片区 · {cleanerCount} 阿姨 · {orderCount} 工单
           </span>
+          <button type="button" className="btn" onClick={handleReset}>
+            重置演示数据
+          </button>
+          {resetNotice && (
+            <span className="header-meta-item" role="status">
+              {resetNotice}
+            </span>
+          )}
         </div>
       </header>
 

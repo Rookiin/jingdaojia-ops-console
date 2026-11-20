@@ -64,7 +64,7 @@ dev-team/Agents/         8 个 Agent 定义（正文五段）+ dev-team/referenc
 
 ## 5. 验证与证据
 
-- `npm run verify`：96 例全绿 + 生产构建成功（54 modules，JS 321.71 kB / gzip 98.73 kB）。
+- `npm run verify`：96 例全绿 + 生产构建成功（54 modules，JS 约 322 kB / gzip 约 99 kB）。
 - 测试覆盖：领域纯函数、selectors 种子对账、actions 状态机与幂等/审批角色、5 个页面 SSR 冒烟。
 - 生产就绪记分卡：见 `docs/05-测试与就绪记分卡.md`，当前总档 **Bronze**（短板：无鉴权、无指标）。
 
