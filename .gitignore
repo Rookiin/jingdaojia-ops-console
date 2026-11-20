@@ -7,3 +7,6 @@ dist/
 .env
 .env.local
 .verify/
+
+# 微信开发者工具本机私有配置（含本机 AppID/编译设置，不入库）
+miniprogram/project.private.config.json

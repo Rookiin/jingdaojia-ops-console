@@ -1,7 +1,7 @@
 {
   "description": "净到家阿姨端（演示小程序，复用 Web 端共享内核）",
   "projectname": "jingdaojia-field",
-  "appid": "touristappid",
+  "appid": "wxa7a31d58f8019364",
   "compileType": "miniprogram",
   "libVersion": "3.5.0",
   "miniprogramRoot": "./",
@@ -13,7 +13,28 @@
     "urlCheck": false,
     "coverView": true,
     "lazyloadPlaceholderEnable": false,
-    "useCompilerPlugins": false
+    "useCompilerPlugins": false,
+    "compileWorklet": false,
+    "uglifyFileName": false,
+    "uploadWithSourceMap": true,
+    "packNpmManually": false,
+    "packNpmRelationList": [],
+    "minifyWXSS": true,
+    "minifyWXML": true,
+    "localPlugins": false,
+    "disableUseStrict": false,
+    "condition": false,
+    "babelSetting": {
+      "ignore": [],
+      "disablePlugins": [],
+      "outputPath": ""
+    }
   },
-  "condition": {}
+  "condition": {},
+  "simulatorPluginLibVersion": {},
+  "packOptions": {
+    "ignore": [],
+    "include": []
+  },
+  "editorSetting": {}
 }
