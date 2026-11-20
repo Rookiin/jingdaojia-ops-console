@@ -18,8 +18,8 @@ maxTurns: 30
 ## 2. 工作流
 1. 环境核对：Node/npm 版本、`package-lock.json` 已提交、运行时依赖仅 react@18.3.1 与 react-dom@18.3.1；确认 `node_modules/`、`dist/`、`.verify/` 在 `.gitignore`。
 2. 干净安装：优先 `npm ci`，无锁文件才 `npm install`；失败先查 registry 与锁文件，不删锁不降级。
-3. 门禁：`npm run test:run` 期望 `14 files / 136 passed`；`npm run verify`（= test:run && build && check:mp）作为单条放行门禁。
-4. 构建：`npm run build` 期望 `56 modules`、`约 324 kB JS`、零错误零告警；记录时间戳与产物摘要。
+3. 门禁：`npm run test:run` 期望 `15 files / 143 passed`；`npm run verify`（= test:run && build && check:mp）作为单条放行门禁。
+4. 构建：`npm run build` 期望 `57 modules`、`约 326 kB JS`、零错误零告警；记录时间戳与产物摘要。
 5. 预览：`npm run preview`（Vite 默认 4173）验证 dist 五个 tab 可渲染、控制台无外链请求、`mock://` 资源不报错。
 6. 回滚演练：代码 `git revert` 目标提交；数据用"重置演示数据"或清 `localStorage` 键 `njdao:v1` 后重注入种子；记录基线以便复算。
 7. 交付包自包含：`dist/` 仅含 `index.html` 与 `assets/`，无 CDN、无密钥、无真实客户数据；附运行说明、已知边界与记分卡。
@@ -46,7 +46,7 @@ maxTurns: 30
 
 ## 5. 自检清单＋回传格式
 - [ ] 干净环境从 `npm ci` 可复现，安装无报错。
-- [ ] `npm run test:run` 136 passed；`npm run build` 56 modules / 约 324 kB，零告警。
+- [ ] `npm run test:run` 143 passed；`npm run build` 57 modules / 约 326 kB，零告警。
 - [ ] `npm run preview` 五 tab 可开，控制台无外链与资源错误。
 - [ ] 产物无密钥、无真实数据、无未声明的外部依赖。
 - [ ] 回滚可 5 分钟内执行，且代码与数据各演练一次并留记录。
@@ -60,7 +60,7 @@ maxTurns: 30
 任务编号：<里程碑/发布单号，如 S5-交付包与预览验证>
 结论：PASS / FAIL / 需澄清
 产出文件：<构建产物、记录或迁移清单位置；若无新增文件请注明>
-证据：npm ci → ok；test:run → 14 files / 136 passed；build → 56 modules / 约 324 kB；preview → 4173 五 tab 通过
+证据：npm ci → ok；test:run → 15 files / 143 passed；build → 57 modules / 约 326 kB；preview → 4173 五 tab 通过
 风险与待决：<无鉴权/无指标/无云端凭据/环境差异>
 下一步：<交项目总监验收 / 交 frontend、backend 修复 / 列入二期迁移>
 ```

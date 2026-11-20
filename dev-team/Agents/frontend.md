@@ -22,7 +22,7 @@ maxTurns: 60
 4. 表格四件套：`Table` + `FilterBar` + `Pagination`（20/页）+ `EmptyState`，并补加载态与错误态。
 5. 写路径：表单先本地校验，再调 action，按 `code` 映射文案（INVALID_INPUT / NOT_FOUND / INVALID_TRANSITION / MISSING_SIGNATURE / MISSING_TIME / FORBIDDEN）；成功后就地刷新。
 6. 样式：只用 `--bg/--surface/--text/--accent/--danger/--warning/--success/--info/--radius/--shadow` 等变量；金额走 `Money` 或 `lib/format.js`，数字千分位。
-7. 验证：补充 SSR 冒烟（`src/domain/__tests__/smoke.test.jsx`），跑 `npm run test:run`（14 文件/136 例）与 `npm run build`（56 modules/约 324 kB），回归先修。
+7. 验证：补充 SSR 冒烟（`src/domain/__tests__/smoke.test.jsx`），跑 `npm run test:run`（14 文件/143 例）与 `npm run build`（57 modules/约 326 kB），回归先修。
 8. 按第 5 节模板回传；FAIL 必须附复现步骤、首个失败断言与已尝试的修复。
 
 ## 3. 输入输出
@@ -62,7 +62,7 @@ maxTurns: 60
 任务编号：<模块/单号，如 M2-赔付审批交互>
 结论：PASS / FAIL / 需澄清
 产出文件：<仓库相对路径或绝对路径，逐个列出>
-证据：npm run test:run → 14 files / 136 passed；npm run build → 56 modules / 约 324 kB；手工路径 <tab 与步骤>
+证据：npm run test:run → 15 files / 143 passed；npm run build → 57 modules / 约 326 kB；手工路径 <tab 与步骤>
 风险与待决：<错误码缺口/契约歧义/token 变更请求>
 下一步：<交 backend / designer / devops 的具体动作>
 ```
