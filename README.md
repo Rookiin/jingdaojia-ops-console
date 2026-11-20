@@ -78,7 +78,7 @@ dev-team/Agents/         8 个 Agent 定义（正文五段）+ dev-team/referenc
 
 ## 7. 未解决问题
 
-- 远端仓库地址待提供；本地已完成全部里程碑提交，拿到可访问地址后一键推送（硬规定第 7 条）。
+- 远端仓库：https://github.com/Rookiin/jingdaojia-ops-console（公开，`main` 已推送全部里程碑提交）。
 - 覆盖率工具未接入；以 A1–A10 断言与用例映射替代。
 - 浏览器交互未自动化（不引入 jsdom/Testing Library），靠演示脚本人工走查。
 - 工单明细规模 1,800（文档原目标 5,200），为演示性能下调，口径不变。
