@@ -11,6 +11,7 @@ import { store } from '../store.js'
 import { ORDER_TRANSITIONS } from '../domain/types.js'
 import { clamp, isFiniteNumber } from '../domain/money.js'
 import { resetSeed } from '../data/loader.js'
+import { checkInOrder, completeOrder } from '../shared/field-actions.js'
 
 function ok(data, extra = {}) {
   return { ok: true, data, ...extra }
@@ -115,6 +116,62 @@ export function transitionOrder(orderId, nextStatus, options = {}) {
     orders: state.orders.map((o) => (o.id === orderId ? updated : o)),
   })
   return ok(updated)
+}
+
+/**
+ * 现场打卡（Web 与小程序共用 core/field-actions 的规则）。
+ * @param {string} orderId
+ * @param {{at:string, location:{lat:number,lng:number,accuracy?:number},
+ *   photosBefore:string[], radiusM?:number, operator?:string}} [payload]
+ */
+export function fieldCheckIn(orderId, payload = {}) {
+  const state = store.getState()
+  const order = state.orders.find((o) => o.id === orderId)
+  if (!order) return fail('NOT_FOUND', '工单不存在')
+  const customer = state.customers.find((c) => c.id === order.customer_id) || null
+
+  const result = checkInOrder({
+    order,
+    customer,
+    at: payload.at,
+    location: payload.location,
+    photosBefore: payload.photosBefore,
+    radiusM: payload.radiusM,
+    operator: payload.operator,
+  })
+  if (!result.ok) return result
+  if (result.idempotent) return ok(order, { idempotent: true })
+
+  store.setState({
+    orders: state.orders.map((item) => (item.id === orderId ? result.order : item)),
+  })
+  return ok(result.order, { event: result.event, distanceM: result.distanceM })
+}
+
+/**
+ * 现场完成（允许客户签字后补，写入 signature_pending）。
+ * @param {string} orderId
+ * @param {{at:string, photosAfter:string[], signature?:string, operator?:string}} [payload]
+ */
+export function fieldComplete(orderId, payload = {}) {
+  const state = store.getState()
+  const order = state.orders.find((o) => o.id === orderId)
+  if (!order) return fail('NOT_FOUND', '工单不存在')
+
+  const result = completeOrder({
+    order,
+    at: payload.at,
+    photosAfter: payload.photosAfter,
+    signature: payload.signature,
+    operator: payload.operator,
+  })
+  if (!result.ok) return result
+  if (result.idempotent) return ok(order, { idempotent: true })
+
+  store.setState({
+    orders: state.orders.map((item) => (item.id === orderId ? result.order : item)),
+  })
+  return ok(result.order, { event: result.event })
 }
 
 /**

@@ -8,6 +8,8 @@ import {
   addRework,
   approveCompensation,
   createOrder,
+  fieldCheckIn,
+  fieldComplete,
   resetDemoData,
   setActivePeriod,
   setQualityOverride,
@@ -203,6 +205,70 @@ describe('actions（写入口：幂等 / 状态机 / 审批）', () => {
     expect(store.getState().meta.period).toBe('2026-11')
     expect(setActivePeriod('2026-13').code).toBe('INVALID_INPUT')
     expect(setActivePeriod(202611).code).toBe('INVALID_INPUT')
+  })
+
+  it('fieldCheckIn / fieldComplete 复用同一内核并可落库（阿姨端契约）', () => {
+    const state = store.getState()
+    const assigned = state.orders.find((order) => order.status === 'assigned')
+    const checkedIn = state.orders.find((order) => order.status === 'checked_in')
+    expect(assigned).toBeTruthy()
+    expect(checkedIn).toBeTruthy()
+
+    const customer = state.customers.find((c) => c.id === assigned.customer_id)
+    expect(Number.isFinite(customer.lat)).toBe(true)
+
+    const checkin = fieldCheckIn(assigned.id, {
+      at: '2026-11-02T09:05:00+08:00',
+      location: { lat: customer.lat, lng: customer.lng, accuracy: 12 },
+      photosBefore: ['wxfile://before.jpg'],
+    })
+    expect(checkin.ok).toBe(true)
+    expect(checkin.distanceM).toBe(0)
+    expect(checkin.data.status).toBe('checked_in')
+    expect(checkin.data.checkin_location.distance_m).toBe(0)
+    expect(checkin.data.field_events).toHaveLength(1)
+    expect(store.getState().orders.find((o) => o.id === assigned.id).status).toBe('checked_in')
+
+    const again = fieldCheckIn(assigned.id, {
+      at: '2026-11-02T09:30:00+08:00',
+      location: { lat: customer.lat, lng: customer.lng },
+      photosBefore: ['wxfile://before.jpg'],
+    })
+    expect(again.idempotent).toBe(true)
+    expect(store.getState().orders.find((o) => o.id === assigned.id).checkin_at).toBe(
+      '2026-11-02T09:05:00+08:00',
+    )
+
+    const complete = fieldComplete(checkedIn.id, {
+      at: '2026-11-02T11:20:00+08:00',
+      photosAfter: ['wxfile://after.jpg'],
+    })
+    expect(complete.ok).toBe(true)
+    expect(complete.data.status).toBe('completed')
+    expect(complete.data.signature_pending).toBe(true)
+  })
+
+  it('fieldCheckIn 超范围与缺照片被拒且不改状态', () => {
+    const state = store.getState()
+    const assigned = state.orders.find((order) => order.status === 'assigned')
+    const customer = state.customers.find((c) => c.id === assigned.customer_id)
+
+    const out = fieldCheckIn(assigned.id, {
+      at: '2026-11-02T09:05:00+08:00',
+      location: { lat: customer.lat + 0.02, lng: customer.lng },
+      photosBefore: ['wxfile://before.jpg'],
+    })
+    expect(out.code).toBe('OUT_OF_RANGE')
+
+    const noPhoto = fieldCheckIn(assigned.id, {
+      at: '2026-11-02T09:05:00+08:00',
+      location: { lat: customer.lat, lng: customer.lng },
+      photosBefore: [],
+    })
+    expect(noPhoto.code).toBe('MISSING_PHOTO')
+    expect(store.getState().orders.find((o) => o.id === assigned.id).status).toBe('assigned')
+    expect(fieldCheckIn('O-NOT-EXIST', {}).code).toBe('NOT_FOUND')
+    expect(fieldComplete('O-NOT-EXIST', {}).code).toBe('NOT_FOUND')
   })
 
   it('resetDemoData 清空写入并回到基线', () => {
