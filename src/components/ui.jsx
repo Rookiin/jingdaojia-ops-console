@@ -4,7 +4,7 @@
  * 导出：Card / StatTile / Table / FilterBar / Badge / StatusBadge /
  *       EmptyState / BarChart / SvgChart / Money
  */
-import { formatYuan, truncate } from '../lib/format.js'
+import { fmtNumber, formatYuan, truncate } from '../lib/format.js'
 
 /* -------------------------------------------------------------------------- */
 /* Card                                                                       */
@@ -345,3 +345,40 @@ export function BarChart({
 
 /** 兼容别名（docs components 中称 SvgChart）。 */
 export const SvgChart = BarChart
+
+/* -------------------------------------------------------------------------- */
+/* Pagination                                                                 */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * 列表分页条（受控）。页码从 1 开始。
+ */
+export function Pagination({ page = 1, pageSize = 20, total = 0, onChange, className = '' }) {
+  const pages = Math.max(1, Math.ceil(Number(total) / Math.max(1, pageSize)))
+  const current = Math.min(Math.max(1, Number(page) || 1), pages)
+  return (
+    <div className={`pagination ${className}`.trim()}>
+      <span className="pagination-info">
+        共 {fmtNumber(total)} 条 · 第 {current}/{pages} 页
+      </span>
+      <div className="pagination-actions">
+        <button
+          type="button"
+          className="btn"
+          disabled={current <= 1}
+          onClick={() => onChange && onChange(current - 1)}
+        >
+          上一页
+        </button>
+        <button
+          type="button"
+          className="btn"
+          disabled={current >= pages}
+          onClick={() => onChange && onChange(current + 1)}
+        >
+          下一页
+        </button>
+      </div>
+    </div>
+  )
+}
