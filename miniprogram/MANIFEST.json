@@ -1,0 +1,31 @@
+{
+  "generator": "scripts/sync-miniprogram.mjs",
+  "seedId": "njdao-seed-2026-10-v1",
+  "seedGeneratedAt": "2026-11-01T00:00:00+08:00",
+  "coreFiles": [
+    "types.js",
+    "money.js",
+    "period.js",
+    "id.js",
+    "geo.js",
+    "field-actions.js"
+  ],
+  "sources": {
+    "src/domain/types.js": "d2754235e96fd19015c6b90f59e0962dd5ad59607085cff64c410681e2378622",
+    "src/domain/money.js": "b12e07dcf831b8cd7e1218f6d588455b4db0017601f1d1b9ee90fa59f05c8176",
+    "src/domain/period.js": "2b15f1b62ef443aa330fedd98e6b7e3b8391a4f4d1b9bf6ce752c8848846aa15",
+    "src/lib/id.js": "d4e02af3b91ad30b5707b44e447580b77751bbca7dfe76ff47847aa7f50bc9fa",
+    "src/shared/geo.js": "dcdecfee9cf320a12f4beca8c159679c1e22806dac3844af4944bd35bd3601f3",
+    "src/shared/field-actions.js": "11ccac38e96d544c67be1daa93d4f7ef862115130732db16ec46051617185d70"
+  },
+  "files": {
+    "core/types.js": "f9f6096cf2b89f0b3bcc69fae8d8c1023e2b71de8057987eeef3d8cf44718842",
+    "core/money.js": "ec18f290ab68b4776576dfd4a9df28119121dcd9078150155e0016fd548c00d3",
+    "core/period.js": "7d659a32f562895eec59272318696cb5ac7251d9aa14ca995c05f0bbfac94362",
+    "core/id.js": "5ae8cc5548767dabac166687b3a8af7f1cc96671fe3558fc1c457a7ff96b527a",
+    "core/geo.js": "ececc420be9e90987b3e7555c77306c014a379bded6add2ad55e2eb70a560083",
+    "core/field-actions.js": "f0380fdde514443e15a42747fdd55c2c674a31c3f4b0e167019dd0d5b6bb3386",
+    "data/seed.json": "428eb6d9d5ca7718089eb7d432d2c43ddf364d9ff04e9f57830bd2404b61c55f",
+    "data/seed.js": "b08b9c0b112982f3fc0150c7fe2e33bee1253e5656f24e38f946dbceb1bfea50"
+  }
+}

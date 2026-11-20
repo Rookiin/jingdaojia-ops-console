@@ -10,7 +10,9 @@
     "preview": "vite preview",
     "test": "vitest run",
     "test:run": "vitest run",
-    "verify": "npm run test:run && npm run build"
+    "sync:mp": "node scripts/sync-miniprogram.mjs",
+    "check:mp": "node scripts/check-miniprogram.mjs",
+    "verify": "npm run test:run && npm run build && npm run check:mp"
   },
   "dependencies": {
     "react": "^18.3.1",

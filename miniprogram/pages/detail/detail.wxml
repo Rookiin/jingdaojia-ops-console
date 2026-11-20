@@ -1,0 +1,93 @@
+<view class="screen" wx:if="{{task}}">
+  <view class="card">
+    <view class="steps">
+      <view class="step {{item.state}}" wx:for="{{steps}}" wx:key="key">
+        <text class="step-num">{{index + 1}}</text>
+        <text>{{item.label}}</text>
+      </view>
+    </view>
+    <view class="row">
+      <view class="big-title">{{scheduleText}}</view>
+      <view class="tag tag-{{task.status}}">{{statusLabel}}</view>
+    </view>
+    <view class="muted">单号 {{orderNo}} · 服务费 {{amountLabel}}</view>
+  </view>
+
+  <view class="card">
+    <view class="card-title">{{customer.name}}</view>
+    <view class="row">
+      <view class="row-label">地址</view>
+      <view class="row-value">{{customer.address}}</view>
+    </view>
+    <view class="row">
+      <view class="row-label">电话</view>
+      <view class="row-value">{{customer.phone_masked}}</view>
+    </view>
+    <button class="btn btn-secondary btn-block" bindtap="onMap">在地图里看位置</button>
+  </view>
+
+  <view class="card">
+    <view class="card-title">第一步 · 到店打卡</view>
+    <view class="muted">{{checkinText}}</view>
+    <view wx:if="{{distanceLabel}}" class="notice {{inRange ? 'notice-safe' : ''}}">
+      {{distanceLabel}}{{inRange ? '，在范围内，可以打卡。' : '，超过 300 米，请走到客户门口再打卡。'}}
+    </view>
+    <button class="btn btn-secondary btn-block" bindtap="onGetLocation">获取我的位置</button>
+
+    <view class="divider"></view>
+    <view class="strong">服务前照片（至少 1 张）</view>
+    <view class="photo-grid">
+      <image
+        class="photo"
+        wx:for="{{photosBefore}}"
+        wx:key="*this"
+        src="{{item}}"
+        mode="aspectFill"
+        data-group="before"
+        data-index="{{index}}"
+        bindtap="onPreview"
+      ></image>
+      <view class="photo-add" bindtap="onTakeBefore">+ 拍服务前</view>
+    </view>
+    <view class="divider"></view>
+    <button
+      wx:if="{{task.status === 'assigned'}}"
+      class="btn btn-primary btn-block"
+      bindtap="onCheckIn"
+    >
+      确认打卡
+    </button>
+    <view wx:else class="muted">打卡已完成。</view>
+  </view>
+
+  <view class="card">
+    <view class="card-title">第二步 · 完成服务</view>
+    <view class="strong">服务后照片（至少 1 张）</view>
+    <view class="photo-grid">
+      <image
+        class="photo"
+        wx:for="{{photosAfter}}"
+        wx:key="*this"
+        src="{{item}}"
+        mode="aspectFill"
+        data-group="after"
+        data-index="{{index}}"
+        bindtap="onPreview"
+      ></image>
+      <view class="photo-add" bindtap="onTakeAfter">+ 拍服务后</view>
+    </view>
+    <view wx:if="{{signaturePending}}" class="notice">这张单是免签字完成的，办公室在看板补录客户签字。</view>
+    <view class="divider"></view>
+    <button
+      wx:if="{{task.status === 'checked_in'}}"
+      class="btn btn-primary btn-block"
+      bindtap="onComplete"
+    >
+      完成服务
+    </button>
+    <view wx:elif="{{task.status === 'completed'}}" class="muted">这张单已经完成，不需要再操作。</view>
+    <view wx:else class="muted">请先完成上面的“到店打卡”。</view>
+  </view>
+
+  <view class="footer-gap"></view>
+</view>

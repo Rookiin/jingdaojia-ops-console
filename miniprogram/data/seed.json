@@ -1,0 +1,326 @@
+{
+  "seedId": "njdao-seed-2026-10-v1",
+  "seedPeriod": "2026-10",
+  "demoDate": "2026-11-02",
+  "radiusM": 300,
+  "generatedAt": "2026-11-01T00:00:00+08:00",
+  "centers": {
+    "D-XXT": {
+      "lat": 22.8386,
+      "lng": 108.2861
+    },
+    "D-QX": {
+      "lat": 22.8167,
+      "lng": 108.3667
+    }
+  },
+  "cleaners": [
+    {
+      "id": "C-0001",
+      "name": "黄雪梅",
+      "phone_masked": "138****8001",
+      "district_id": "D-XXT"
+    },
+    {
+      "id": "C-0002",
+      "name": "陈金凤",
+      "phone_masked": "138****8002",
+      "district_id": "D-XXT"
+    },
+    {
+      "id": "C-0003",
+      "name": "农静",
+      "phone_masked": "138****8003",
+      "district_id": "D-XXT"
+    }
+  ],
+  "customers": [
+    {
+      "id": "K-0001",
+      "name": "梁先生",
+      "phone_masked": "138****0001",
+      "district_id": "D-XXT",
+      "address": "南宁市西乡塘示例路2号（虚构）",
+      "lat": 22.841,
+      "lng": 108.2865
+    },
+    {
+      "id": "K-0002",
+      "name": "刘女士",
+      "phone_masked": "138****0002",
+      "district_id": "D-XXT",
+      "address": "南宁市西乡塘示例路3号（虚构）",
+      "lat": 22.839,
+      "lng": 108.2825
+    },
+    {
+      "id": "K-0003",
+      "name": "梁先生",
+      "phone_masked": "138****0003",
+      "district_id": "D-XXT",
+      "address": "南宁市西乡塘示例路4号（虚构）",
+      "lat": 22.837,
+      "lng": 108.2869
+    },
+    {
+      "id": "K-0004",
+      "name": "覃女士",
+      "phone_masked": "138****0004",
+      "district_id": "D-XXT",
+      "address": "南宁市西乡塘示例路5号（虚构）",
+      "lat": 22.835,
+      "lng": 108.2829
+    },
+    {
+      "id": "K-0005",
+      "name": "韦先生",
+      "phone_masked": "138****0005",
+      "district_id": "D-XXT",
+      "address": "南宁市西乡塘示例路6号（虚构）",
+      "lat": 22.8414,
+      "lng": 108.2873
+    },
+    {
+      "id": "K-0006",
+      "name": "陈女士",
+      "phone_masked": "138****0006",
+      "district_id": "D-XXT",
+      "address": "南宁市西乡塘示例路7号（虚构）",
+      "lat": 22.8394,
+      "lng": 108.2833
+    }
+  ],
+  "tasks": [
+    {
+      "id": "O-001801",
+      "order_no": "NJ2026110001",
+      "district_id": "D-XXT",
+      "customer_id": "K-0001",
+      "cleaner_id": "C-0001",
+      "service_type": "daily",
+      "amount": 17000,
+      "status": "assigned",
+      "scheduled_at": "2026-11-02T09:00:00+08:00",
+      "checkin_at": null,
+      "completed_at": null,
+      "photos_before": [],
+      "photos_after": [],
+      "signature": null,
+      "signature_pending": false,
+      "is_rework": false,
+      "rework_of_order_id": null,
+      "cancel_reason": null,
+      "idempotency_key": "create:O-001801",
+      "created_by": "DISPATCH-D-XXT",
+      "created_at": "2026-11-01T18:00:00+08:00",
+      "updated_at": "2026-11-01T18:00:00+08:00",
+      "checkin_location": null,
+      "field_events": []
+    },
+    {
+      "id": "O-001802",
+      "order_no": "NJ2026110002",
+      "district_id": "D-XXT",
+      "customer_id": "K-0002",
+      "cleaner_id": "C-0001",
+      "service_type": "daily",
+      "amount": 19000,
+      "status": "checked_in",
+      "scheduled_at": "2026-11-02T11:00:00+08:00",
+      "checkin_at": "2026-11-02T11:05:00+08:00",
+      "completed_at": null,
+      "photos_before": [
+        "mock://b/O-001802"
+      ],
+      "photos_after": [],
+      "signature": null,
+      "signature_pending": false,
+      "is_rework": false,
+      "rework_of_order_id": null,
+      "cancel_reason": null,
+      "idempotency_key": "create:O-001802",
+      "created_by": "DISPATCH-D-XXT",
+      "created_at": "2026-11-01T18:00:00+08:00",
+      "updated_at": "2026-11-02T11:05:00+08:00",
+      "checkin_location": {
+        "lat": 22.839,
+        "lng": 108.2825,
+        "accuracy": 20,
+        "distance_m": 0,
+        "at": "2026-11-02T11:05:00+08:00"
+      },
+      "field_events": [
+        {
+          "id": "O-001802:checkin",
+          "type": "checkin",
+          "order_id": "O-001802",
+          "at": "2026-11-02T11:05:00+08:00",
+          "operator": "C-0001",
+          "location": {
+            "lat": 22.839,
+            "lng": 108.2825,
+            "accuracy": 20
+          },
+          "distance_m": 0,
+          "photos": [
+            "mock://b/O-001802"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "O-001803",
+      "order_no": "NJ2026110003",
+      "district_id": "D-XXT",
+      "customer_id": "K-0003",
+      "cleaner_id": "C-0002",
+      "service_type": "daily",
+      "amount": 21000,
+      "status": "assigned",
+      "scheduled_at": "2026-11-02T09:30:00+08:00",
+      "checkin_at": null,
+      "completed_at": null,
+      "photos_before": [],
+      "photos_after": [],
+      "signature": null,
+      "signature_pending": false,
+      "is_rework": false,
+      "rework_of_order_id": null,
+      "cancel_reason": null,
+      "idempotency_key": "create:O-001803",
+      "created_by": "DISPATCH-D-XXT",
+      "created_at": "2026-11-01T18:00:00+08:00",
+      "updated_at": "2026-11-01T18:00:00+08:00",
+      "checkin_location": null,
+      "field_events": []
+    },
+    {
+      "id": "O-001804",
+      "order_no": "NJ2026110004",
+      "district_id": "D-XXT",
+      "customer_id": "K-0004",
+      "cleaner_id": "C-0002",
+      "service_type": "daily",
+      "amount": 23000,
+      "status": "checked_in",
+      "scheduled_at": "2026-11-02T11:30:00+08:00",
+      "checkin_at": "2026-11-02T11:35:00+08:00",
+      "completed_at": null,
+      "photos_before": [
+        "mock://b/O-001804"
+      ],
+      "photos_after": [],
+      "signature": null,
+      "signature_pending": false,
+      "is_rework": false,
+      "rework_of_order_id": null,
+      "cancel_reason": null,
+      "idempotency_key": "create:O-001804",
+      "created_by": "DISPATCH-D-XXT",
+      "created_at": "2026-11-01T18:00:00+08:00",
+      "updated_at": "2026-11-02T11:35:00+08:00",
+      "checkin_location": {
+        "lat": 22.835,
+        "lng": 108.2829,
+        "accuracy": 20,
+        "distance_m": 0,
+        "at": "2026-11-02T11:35:00+08:00"
+      },
+      "field_events": [
+        {
+          "id": "O-001804:checkin",
+          "type": "checkin",
+          "order_id": "O-001804",
+          "at": "2026-11-02T11:35:00+08:00",
+          "operator": "C-0002",
+          "location": {
+            "lat": 22.835,
+            "lng": 108.2829,
+            "accuracy": 20
+          },
+          "distance_m": 0,
+          "photos": [
+            "mock://b/O-001804"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "O-001805",
+      "order_no": "NJ2026110005",
+      "district_id": "D-XXT",
+      "customer_id": "K-0005",
+      "cleaner_id": "C-0003",
+      "service_type": "daily",
+      "amount": 16000,
+      "status": "assigned",
+      "scheduled_at": "2026-11-02T10:00:00+08:00",
+      "checkin_at": null,
+      "completed_at": null,
+      "photos_before": [],
+      "photos_after": [],
+      "signature": null,
+      "signature_pending": false,
+      "is_rework": false,
+      "rework_of_order_id": null,
+      "cancel_reason": null,
+      "idempotency_key": "create:O-001805",
+      "created_by": "DISPATCH-D-XXT",
+      "created_at": "2026-11-01T18:00:00+08:00",
+      "updated_at": "2026-11-01T18:00:00+08:00",
+      "checkin_location": null,
+      "field_events": []
+    },
+    {
+      "id": "O-001806",
+      "order_no": "NJ2026110006",
+      "district_id": "D-XXT",
+      "customer_id": "K-0006",
+      "cleaner_id": "C-0003",
+      "service_type": "daily",
+      "amount": 18000,
+      "status": "checked_in",
+      "scheduled_at": "2026-11-02T12:00:00+08:00",
+      "checkin_at": "2026-11-02T12:05:00+08:00",
+      "completed_at": null,
+      "photos_before": [
+        "mock://b/O-001806"
+      ],
+      "photos_after": [],
+      "signature": null,
+      "signature_pending": false,
+      "is_rework": false,
+      "rework_of_order_id": null,
+      "cancel_reason": null,
+      "idempotency_key": "create:O-001806",
+      "created_by": "DISPATCH-D-XXT",
+      "created_at": "2026-11-01T18:00:00+08:00",
+      "updated_at": "2026-11-02T12:05:00+08:00",
+      "checkin_location": {
+        "lat": 22.8394,
+        "lng": 108.2833,
+        "accuracy": 20,
+        "distance_m": 0,
+        "at": "2026-11-02T12:05:00+08:00"
+      },
+      "field_events": [
+        {
+          "id": "O-001806:checkin",
+          "type": "checkin",
+          "order_id": "O-001806",
+          "at": "2026-11-02T12:05:00+08:00",
+          "operator": "C-0003",
+          "location": {
+            "lat": 22.8394,
+            "lng": 108.2833,
+            "accuracy": 20
+          },
+          "distance_m": 0,
+          "photos": [
+            "mock://b/O-001806"
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,28 @@
+<view class="screen">
+  <view class="card">
+    <view class="big-title">请选择您的名字</view>
+    <view class="muted">选好后点最下面绿色大按钮进入任务。演示版不需要手机号登录。</view>
+  </view>
+
+  <view class="card">
+    <view class="card-title">今天上班的阿姨</view>
+    <view
+      class="list-item"
+      wx:for="{{cleaners}}"
+      wx:key="id"
+      data-id="{{item.id}}"
+      bindtap="onSelect"
+    >
+      <view>
+        <view class="strong" style="font-size: 40rpx;">{{item.name}}</view>
+        <view class="muted">{{item.district}} · 手机尾号 {{item.phoneTail}} · {{item.pendingText}}</view>
+      </view>
+      <view class="radio {{selectedId === item.id ? 'is-on' : ''}}"></view>
+    </view>
+  </view>
+
+  <view class="notice">本小程序只用来打卡、拍照和完成服务，不会新建工单。所有数据为演示虚构数据。</view>
+
+  <button class="btn btn-primary btn-block" bindtap="onEnter">进入我的任务</button>
+  <view class="footer-gap"></view>
+</view>

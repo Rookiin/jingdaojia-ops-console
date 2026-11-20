@@ -1,0 +1,55 @@
+<view class="screen">
+  <view wx:if="{{storageError}}" class="notice">{{storageError}}</view>
+
+  <view class="card">
+    <view class="big-title">{{cleanerName || '您好'}}，今天的任务</view>
+    <view class="muted">往下看，点大按钮就能打卡或完成。看不清可以放大手机字号。</view>
+    <view class="divider"></view>
+    <view class="row">
+      <view class="row-label">待打卡</view>
+      <view class="row-value strong">{{counts.assigned}} 单</view>
+    </view>
+    <view class="row">
+      <view class="row-label">服务中</view>
+      <view class="row-value strong">{{counts.checked_in}} 单</view>
+    </view>
+    <view class="row">
+      <view class="row-label">已完成</view>
+      <view class="row-value strong">{{counts.completed}} 单</view>
+    </view>
+  </view>
+
+  <view wx:if="{{tasks.length === 0}}" class="card">
+    <view class="card-title">今天没有任务</view>
+    <view class="muted">如果有新任务，下拉刷新即可看到。</view>
+  </view>
+
+  <view
+    class="card"
+    wx:for="{{tasks}}"
+    wx:key="id"
+  >
+    <view class="row">
+      <view class="big-title">{{item.dateText}} {{item.timeText}}</view>
+      <view class="tag tag-{{item.status}}">{{item.statusText}}</view>
+    </view>
+    <view class="row">
+      <view class="row-label">客户</view>
+      <view class="row-value">{{item.customerName}}</view>
+    </view>
+    <view class="row">
+      <view class="row-label">地址</view>
+      <view class="row-value">{{item.address}}</view>
+    </view>
+    <view class="divider"></view>
+    <button
+      class="btn btn-primary btn-block {{item.status === 'completed' ? 'btn-disabled' : ''}}"
+      data-id="{{item.id}}"
+      bindtap="openTask"
+    >
+      {{item.actionText}}
+    </button>
+  </view>
+
+  <view class="footer-gap"></view>
+</view>

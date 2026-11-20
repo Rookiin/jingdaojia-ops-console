@@ -1,0 +1,41 @@
+<view class="screen">
+  <view wx:if="{{storageError}}" class="notice">{{storageError}}</view>
+
+  <view class="card">
+    <view class="big-title">{{cleaner.name}}</view>
+    <view class="muted">手机尾号 {{cleaner.phone_masked}}</view>
+    <view class="divider"></view>
+    <view class="row">
+      <view class="row-label">待打卡</view>
+      <view class="row-value strong">{{counts.assigned}} 单</view>
+    </view>
+    <view class="row">
+      <view class="row-label">服务中</view>
+      <view class="row-value strong">{{counts.checked_in}} 单</view>
+    </view>
+    <view class="row">
+      <view class="row-label">今日已完成</view>
+      <view class="row-value strong">{{counts.completed}} 单</view>
+    </view>
+  </view>
+
+  <view class="card">
+    <view class="card-title">数据说明</view>
+    <view class="muted">本小程序只保存在这台手机上，不会上传到服务器；所有客户和工单都是演示虚构数据。客户签字由办公室在看板补录。</view>
+    <view class="divider"></view>
+    <view class="row">
+      <view class="row-label">本地占用</view>
+      <view class="row-value">{{storageText}}</view>
+    </view>
+    <view class="row">
+      <view class="row-label">数据版本</view>
+      <view class="row-value">{{seedId}}</view>
+    </view>
+  </view>
+
+  <button class="btn btn-secondary btn-block" bindtap="onSwitch">切换名字</button>
+  <view class="footer-gap"></view>
+  <button class="btn btn-secondary btn-block" bindtap="onReset">重置演示数据</button>
+  <view class="footer-gap"></view>
+  <view class="muted" style="text-align: center;">净到家保洁 · 阿姨端演示 · 数据虚构</view>
+</view>
