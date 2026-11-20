@@ -17,9 +17,13 @@ import {
   fmtNumber,
   periodLabel,
   toPct,
-  truncate,
 } from '../../lib/format.js'
 import { makeIdempotencyKey, makeOrderNo } from '../../lib/id.js'
+import {
+  EMPTY_ORDER_FILTERS,
+  buildComplaintIndex,
+  filterOrders,
+} from './filters.js'
 import { ORDER_STATUS, ORDER_TRANSITIONS, SERVICE_TYPES } from '../../domain/types.js'
 import { periodOf } from '../../domain/period.js'
 
@@ -29,13 +33,7 @@ import { periodOf } from '../../domain/period.js'
 
 const PAGE_SIZE = 20
 const DONE_STATUS = new Set(['completed', 'closed'])
-const EMPTY_FILTERS = {
-  district: '',
-  status: '',
-  service: '',
-  keyword: '',
-  reworkOnly: false,
-}
+const EMPTY_FILTERS = EMPTY_ORDER_FILTERS
 
 const ORDER_STATUS_CN = {
   created: '已创建',
@@ -290,14 +288,13 @@ export default function OrdersPage() {
     () => new Map(asArray(state.districts).map((district) => [district.id, district])),
     [state.districts],
   )
-  const complaintOrderIds = useMemo(
-    () =>
-      new Set(
-        asArray(state.complaints)
-          .map((complaint) => complaint.order_id)
-          .filter(Boolean),
-      ),
+  const complaintIndex = useMemo(
+    () => buildComplaintIndex(asArray(state.complaints)),
     [state.complaints],
+  )
+  const complaintOrderIds = useMemo(
+    () => new Set(complaintIndex.keys()),
+    [complaintIndex],
   )
 
   /* ----------------------------- KPI ------------------------------------- */
@@ -320,30 +317,17 @@ export default function OrdersPage() {
 
   /* ----------------------------- 筛选 ------------------------------------ */
 
-  const filtered = useMemo(() => {
-    const keyword = filters.keyword.trim().toLowerCase()
-    return orders.filter((order) => {
-      if (filters.district && order.district_id !== filters.district) return false
-      if (filters.status && order.status !== filters.status) return false
-      if (filters.service && order.service_type !== filters.service) return false
-      if (filters.reworkOnly && !order.is_rework) return false
-      if (keyword) {
-        const customer = customerById.get(order.customer_id)
-        const cleaner = cleanerById.get(order.cleaner_id)
-        const haystack = [
-          order.order_no,
-          order.id,
-          customer?.name,
-          cleaner?.name,
-        ]
-          .filter(Boolean)
-          .join(' ')
-          .toLowerCase()
-        if (!haystack.includes(keyword)) return false
-      }
-      return true
-    })
-  }, [orders, filters, customerById, cleanerById])
+  const filtered = useMemo(
+    () =>
+      filterOrders({
+        orders,
+        filters,
+        customerById,
+        cleanerById,
+        complaintIndex,
+      }),
+    [orders, filters, customerById, cleanerById, complaintIndex],
+  )
 
   useEffect(() => {
     setPage(1)
@@ -585,6 +569,23 @@ export default function OrdersPage() {
       render: (row) => <StatusBadge status={row.status} />,
     },
     {
+      key: 'complaints',
+      title: '投诉',
+      render: (row) => {
+        const entry = complaintIndex.get(row.id)
+        if (!entry) return <span className="ord-sub">—</span>
+        const latest = entry.latest
+        return (
+          <div>
+            <Badge tone="danger">{entry.count} 条</Badge>
+            <span className="ord-sub">
+              {COMPLAINT_CATEGORY_CN[latest?.category] || latest?.category || '投诉'}
+            </span>
+          </div>
+        )
+      },
+    },
+    {
       key: 'scheduled_at',
       title: '预约时间',
       render: (row) => <span className="ord-nowrap">{fmtDateTime(row.scheduled_at)}</span>,
@@ -678,6 +679,7 @@ export default function OrdersPage() {
         .ord-related-main { display: flex; flex-direction: column; gap: 3px; min-width: 0; font-size: 12px; }
         .ord-related-id { display: inline-flex; align-items: center; gap: 6px; flex-wrap: wrap; font-weight: 600; color: var(--text); }
         .ord-related-meta { font-size: 11px; color: var(--muted); overflow-wrap: anywhere; }
+        .ord-complaint-content { display: block; margin-top: 2px; font-size: 12px; color: var(--text); line-height: 1.5; }
         .ord-related-amount { margin-left: auto; }
         .ord-link { padding: 0; border: 0; background: transparent; color: var(--accent); font-size: 11px; cursor: pointer; text-decoration: underline; }
         .ord-link:hover { color: var(--accent-strong); }
@@ -752,8 +754,12 @@ export default function OrdersPage() {
         <StatTile
           label="有关联投诉的工单"
           value={fmtNumber(kpis.complaintOrders)}
-          hint="投诉 order_id 可定位到具体工单"
+          hint={filters.hasComplaint ? '已只看有投诉的工单，再点一次取消' : '点击只看这些工单'}
           tone={kpis.complaintOrders > 0 ? 'danger' : 'neutral'}
+          onClick={() =>
+            setFilters((prev) => ({ ...prev, hasComplaint: !prev.hasComplaint }))
+          }
+          pressed={filters.hasComplaint}
         />
         <StatTile
           label="证据完整率"
@@ -971,7 +977,7 @@ export default function OrdersPage() {
           <input
             type="search"
             value={filters.keyword}
-            placeholder="工单号 / 客户姓名 / 阿姨姓名"
+            placeholder="工单号 / 客户 / 阿姨 / 投诉内容"
             onChange={(event) => setFilters((prev) => ({ ...prev, keyword: event.target.value }))}
           />
         </label>
@@ -985,6 +991,17 @@ export default function OrdersPage() {
             }
           />
           仅看返工
+        </label>
+
+        <label className="ord-check">
+          <input
+            type="checkbox"
+            checked={filters.hasComplaint}
+            onChange={(event) =>
+              setFilters((prev) => ({ ...prev, hasComplaint: event.target.checked }))
+            }
+          />
+          仅看有投诉
         </label>
       </FilterBar>
 
@@ -1258,8 +1275,8 @@ export default function OrdersPage() {
                                   complaint.channel}{' '}
                                 · {fmtDateTime(complaint.created_at)}
                               </span>
-                              <span className="ord-related-meta">
-                                {truncate(complaint.content, 46)}
+                              <span className="ord-related-meta ord-complaint-content">
+                                {complaint.content || '（未填写投诉内容）'}
                               </span>
                               {complaint.compensation_id && (
                                 <span className="ord-related-meta">

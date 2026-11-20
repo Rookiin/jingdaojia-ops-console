@@ -32,14 +32,37 @@ export function Card({ title, subtitle, actions, children, footer, className = '
 /* StatTile                                                                   */
 /* -------------------------------------------------------------------------- */
 
-export function StatTile({ label, value, hint, tone = 'neutral', className = '' }) {
-  return (
-    <div className={`stat-tile tone-${tone} ${className}`.trim()}>
+export function StatTile({
+  label,
+  value,
+  hint,
+  tone = 'neutral',
+  className = '',
+  onClick,
+  pressed = false,
+}) {
+  const classes = `stat-tile tone-${tone} ${onClick ? 'stat-tile-btn' : ''} ${
+    pressed ? 'is-active' : ''
+  } ${className}`
+    .replace(/\s+/g, ' ')
+    .trim()
+  const body = (
+    <>
       <div className="stat-label">{label}</div>
       <div className="stat-value">{value}</div>
       {hint && <div className="stat-hint">{hint}</div>}
-    </div>
+    </>
   )
+
+  if (onClick) {
+    return (
+      <button type="button" className={classes} onClick={onClick} aria-pressed={pressed}>
+        {body}
+      </button>
+    )
+  }
+
+  return <div className={classes}>{body}</div>
 }
 
 /* -------------------------------------------------------------------------- */
