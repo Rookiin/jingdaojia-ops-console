@@ -8,17 +8,36 @@ import { namedError } from './money.js'
 
 export const DEFAULT_TIME_ZONE = 'Asia/Shanghai'
 
-function formatParts(timestamp, timeZone) {
-  const date = new Date(timestamp)
+/** 业务时区固定 UTC+8，无夏令时；算术实现避免依赖小程序 Intl。 */
+const SHANGHAI_OFFSET_MS = 8 * 60 * 60 * 1000
+
+function formatShanghai(timestamp) {
+  const date = new Date(timestamp + SHANGHAI_OFFSET_MS)
+  return {
+    year: String(date.getUTCFullYear()),
+    month: String(date.getUTCMonth() + 1).padStart(2, '0'),
+  }
+}
+
+function formatWithIntl(timestamp, timeZone) {
+  if (typeof Intl === 'undefined' || typeof Intl.DateTimeFormat !== 'function') {
+    return null
+  }
   const formatter = new Intl.DateTimeFormat('en-CA', {
     timeZone,
     year: 'numeric',
     month: '2-digit',
   })
-  const parts = formatter.formatToParts(date)
-  const year = parts.find((p) => p.type === 'year')?.value
-  const month = parts.find((p) => p.type === 'month')?.value
-  return { year, month }
+  const parts = formatter.formatToParts(new Date(timestamp))
+  return {
+    year: parts.find((p) => p.type === 'year')?.value,
+    month: parts.find((p) => p.type === 'month')?.value,
+  }
+}
+
+function formatParts(timestamp, timeZone) {
+  if (timeZone === DEFAULT_TIME_ZONE) return formatShanghai(timestamp)
+  return formatWithIntl(timestamp, timeZone)
 }
 
 /**
@@ -33,7 +52,9 @@ export function periodOf(datetime, timeZone = DEFAULT_TIME_ZONE) {
   if (!datetime) return null
   const timestamp = Date.parse(datetime)
   if (!Number.isFinite(timestamp)) return null
-  const { year, month } = formatParts(timestamp, timeZone)
+  const parts = formatParts(timestamp, timeZone)
+  if (!parts) return null
+  const { year, month } = parts
   if (!year || !month) return null
   return `${year}-${month}`
 }

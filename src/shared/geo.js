@@ -1,0 +1,54 @@
+/**
+ * 地理距离（纯函数，Web 与小程序共用）。
+ *
+ * 坐标统一为 {lat, lng}，WGS84/GCJ02 均可，只要两端取点方式一致；
+ * 小程序端取点由 services/location.js 负责（gcj02），演示客户坐标为虚构值。
+ */
+
+const EARTH_RADIUS_M = 6371008.8
+
+function toRadians(degrees) {
+  return (degrees * Math.PI) / 180
+}
+
+/**
+ * 坐标是否为有限数值且在合法范围内。
+ * @param {{lat:number, lng:number}|null|undefined} point
+ * @returns {boolean}
+ */
+export function isValidCoordinate(point) {
+  if (!point) return false
+  const { lat, lng } = point
+  return (
+    Number.isFinite(lat) &&
+    Number.isFinite(lng) &&
+    lat >= -90 &&
+    lat <= 90 &&
+    lng >= -180 &&
+    lng <= 180
+  )
+}
+
+/**
+ * 两点间球面距离（米，四舍五入到整数）。
+ * 坐标非法时返回 null，调用方据此判定“缺少定位”。
+ *
+ * @param {{lat:number, lng:number}} a
+ * @param {{lat:number, lng:number}} b
+ * @returns {number|null}
+ */
+export function distanceMeters(a, b) {
+  if (!isValidCoordinate(a) || !isValidCoordinate(b)) return null
+
+  const lat1 = toRadians(a.lat)
+  const lat2 = toRadians(b.lat)
+  const dLat = toRadians(b.lat - a.lat)
+  const dLng = toRadians(b.lng - a.lng)
+
+  const h =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLng / 2) ** 2
+  const arc = 2 * Math.asin(Math.min(1, Math.sqrt(h)))
+
+  return Math.round(EARTH_RADIUS_M * arc)
+}
