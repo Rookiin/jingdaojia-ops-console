@@ -14,8 +14,9 @@
  * 规模偏差（有意简化）：docs §2.4 要求 5,200 单/月（西 1,733 + 青 3,467）。
  * 为把 localStorage 载荷压在 ~1.7M 字符内（避免 5MB 配额风险、加快首屏），
  * 工单明细降为 1,800 单/月（西 600 = 510 正常 + 90 返工；青 1,200）；
- * 其余规模（8 片区 / 98 阿姨 / 1,200 客户 / 120 赔付 / 180 投诉 /
- * 90 返工 / 60 空跑）与 docs 一致，损益 aggregate 与验收值**完全不变**。
+ * 另加 6 张 2026-11 的「在途任务」供阿姨端演示（assigned/checked_in，不计营收），
+ * 合计 1,806 单。其余规模（8 片区 / 98 阿姨 / 1,200 客户 / 120 赔付 /
+ * 180 投诉 / 90 返工 / 60 空跑）与 docs 一致，损益 aggregate 与验收值**完全不变**。
  * - 180 投诉、90 返工、60 空跑
  *
  * 金额闭合（全部为分，误差 0）：
@@ -39,7 +40,9 @@ export const SEED_SCALE = {
   customers: 1200,
   // 演示规模：docs 目标 5,200，降至 1,800 以控制 localStorage 体积；
   // 营收由最大余数法精确分配，aggregate 不受单量影响。
-  orders: 1800,
+  // +6 张 2026-11 在途任务（阿姨端打卡演示），不计营收。
+  orders: 1806,
+  fieldTasks: 6,
   westOrders: 600,
   westEligibleOrders: 510,
   westReworkOrders: 90,
@@ -82,6 +85,17 @@ export const SEED_TARGETS = {
     grossProfit: 11_440_000,
   },
 }
+
+/**
+ * 片区演示中心坐标（虚构，仅用于阿姨端定位围栏演示，非真实地理编码）。
+ */
+export const DISTRICT_CENTERS = {
+  'D-XXT': { lat: 22.8386, lng: 108.2861 },
+  'D-QX': { lat: 22.8167, lng: 108.3667 },
+}
+
+/** 阿姨端演示日期：在途任务所在当天。 */
+export const FIELD_DEMO_DATE = '2026-11-02'
 
 /* ------------------------------------------------------------------ */
 /* 确定性随机与工具                                                    */
@@ -295,12 +309,18 @@ export function buildSeed() {
     for (let i = 0; i < plan.count; i += 1) {
       customerSeq += 1
       const surname = pick(rng, SURNAMES)
+      const center = DISTRICT_CENTERS[plan.district_id]
+      const offsetLat = (((customerSeq * 37) % 21) - 10) * 0.0004
+      const offsetLng = (((customerSeq * 53) % 21) - 10) * 0.0004
       customers.push({
         id: `K-${String(customerSeq).padStart(4, '0')}`,
         name: `${surname}${customerSeq % 2 === 0 ? '女士' : '先生'}`,
         phone_masked: maskedPhone(customerSeq),
         district_id: plan.district_id,
         address: `南宁市${districtName}示例路${(customerSeq % 120) + 1}号（虚构）`,
+        // 虚构坐标：片区中心 + 确定性小偏移（≤±0.004°，约 440 米内）
+        lat: Number((center.lat + offsetLat).toFixed(6)),
+        lng: Number((center.lng + offsetLng).toFixed(6)),
         first_order_at: null,
         last_order_at: null,
         total_orders: 0,
@@ -434,7 +454,84 @@ export function buildSeed() {
     })
   }
 
-  const orders = [...westEligible, ...westReworkOrders, ...qingxiuEligible]
+  /* --------- 阿姨端演示：2026-11 在途任务（assigned/checked_in，不计营收） --------- */
+  const fieldTaskCleaners = cleaners.slice(0, 3)
+  const fieldTaskCustomers = westCustomers.slice(0, 6)
+  const fieldTasks = []
+  fieldTaskCleaners.forEach((cleaner, ci) => {
+    for (let slot = 0; slot < 2; slot += 1) {
+      orderSeq += 1
+      const id = `O-${String(orderSeq).padStart(6, '0')}`
+      const customer = fieldTaskCustomers[ci * 2 + slot]
+      const status = slot === 0 ? 'assigned' : 'checked_in'
+      const startMinutes = 9 * 60 + ci * 30 + slot * 120
+      const startAt = `${FIELD_DEMO_DATE}T${pad2(Math.floor(startMinutes / 60))}:${pad2(
+        startMinutes % 60,
+      )}:00+08:00`
+      const checkinMinutes = startMinutes + 5
+      const checkinAt =
+        status === 'checked_in'
+          ? `${FIELD_DEMO_DATE}T${pad2(Math.floor(checkinMinutes / 60))}:${pad2(
+              checkinMinutes % 60,
+            )}:00+08:00`
+          : null
+      const beforePhoto = `mock://b/${id}`
+      const checkinEvent = checkinAt
+        ? {
+            id: `${id}:checkin`,
+            type: 'checkin',
+            order_id: id,
+            at: checkinAt,
+            operator: cleaner.id,
+            location: { lat: customer.lat, lng: customer.lng, accuracy: 20 },
+            distance_m: 0,
+            photos: [beforePhoto],
+          }
+        : null
+
+      fieldTasks.push({
+        id,
+        order_no: `NJ202611${String(ci * 2 + slot + 1).padStart(4, '0')}`,
+        district_id: cleaner.district_id,
+        customer_id: customer.id,
+        cleaner_id: cleaner.id,
+        service_type: 'daily',
+        amount: 15_000 + ((orderSeq * 137) % 9) * 1_000,
+        status,
+        scheduled_at: startAt,
+        checkin_at: checkinAt,
+        completed_at: null,
+        photos_before: status === 'checked_in' ? [beforePhoto] : [],
+        photos_after: [],
+        signature: null,
+        signature_pending: false,
+        is_rework: false,
+        rework_of_order_id: null,
+        cancel_reason: null,
+        idempotency_key: `create:${id}`,
+        created_by: `DISPATCH-${cleaner.district_id}`,
+        created_at: '2026-11-01T18:00:00+08:00',
+        updated_at: checkinAt || '2026-11-01T18:00:00+08:00',
+        checkin_location: checkinAt
+          ? {
+              lat: customer.lat,
+              lng: customer.lng,
+              accuracy: 20,
+              distance_m: 0,
+              at: checkinAt,
+            }
+          : null,
+        field_events: checkinEvent ? [checkinEvent] : [],
+      })
+    }
+  })
+
+  const orders = [
+    ...westEligible,
+    ...westReworkOrders,
+    ...qingxiuEligible,
+    ...fieldTasks,
+  ]
   for (const o of orders) {
     delete o._valueWeight
     delete o._day
