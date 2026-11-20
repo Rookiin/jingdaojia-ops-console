@@ -1,0 +1,115 @@
+/**
+ * 金额与通用数值工具（纯函数）。
+ *
+ * 约定（docs §3.1）：
+ * - 所有金额参数与返回值统一为 Cents（整数分），仅在展示层除以 100。
+ * - 禁止浮点累加后再取整；先取整再累加。
+ * - 除零的比率返回 null（而不是 NaN / Infinity）。
+ */
+
+/**
+ * 元 → 分（仅用于迁移/边界，业务内部应直接使用分）。
+ * @param {number} value 元
+ * @returns {number} 分
+ */
+export function yuanToCents(value) {
+  return Math.round(Number(value) * 100)
+}
+
+/**
+ * 分 → 元（展示用；不要在金额运算中使用）。
+ * @param {number} cents
+ * @returns {number}
+ */
+export function centsToYuan(cents) {
+  const n = Number(cents)
+  return Number.isFinite(n) ? n / 100 : 0
+}
+
+/**
+ * 分取整。等价 docs 的 roundHalfUp（Math.round）。
+ * @param {number} n
+ * @returns {number} 整数分
+ */
+export function roundCents(n) {
+  return Math.round(Number(n) || 0)
+}
+
+/**
+ * 分求和。
+ * @param {number[]} xs
+ * @returns {number}
+ */
+export function sumCents(xs) {
+  let total = 0
+  for (const x of xs) total += Number(x) || 0
+  return Math.round(total)
+}
+
+/**
+ * 将数值截断到 [lo, hi]。
+ * @param {number} n
+ * @param {number} lo
+ * @param {number} hi
+ * @returns {number}
+ */
+export function clamp(n, lo, hi) {
+  return Math.min(hi, Math.max(lo, n))
+}
+
+/**
+ * 四舍五入到两位小数。
+ * @param {number} n
+ * @returns {number}
+ */
+export function round2(n) {
+  return Math.round((Number(n) || 0) * 100) / 100
+}
+
+/**
+ * 安全比率：分母为 0 时返回 null。
+ * @param {number} numerator
+ * @param {number} denominator
+ * @returns {number|null}
+ */
+export function ratioOrNull(numerator, denominator) {
+  const d = Number(denominator)
+  if (!Number.isFinite(d) || d === 0) return null
+  const n = Number(numerator)
+  if (!Number.isFinite(n)) return null
+  return n / d
+}
+
+/**
+ * 百分比数值（保留两位小数），分母为 0 返回 null。
+ * 例如 26,000,000 分营收、5,720,000 分毛利 → 22。
+ * @param {number} numerator
+ * @param {number} denominator
+ * @returns {number|null}
+ */
+export function pctOrNull(numerator, denominator) {
+  const r = ratioOrNull(numerator, denominator)
+  return r === null ? null : round2(r * 100)
+}
+
+/**
+ * 是否为有限数字。
+ * @param {unknown} n
+ * @returns {boolean}
+ */
+export function isFiniteNumber(n) {
+  return typeof n === 'number' && Number.isFinite(n)
+}
+
+/**
+ * 构造具名程序错误（供调用方按 code 捕获）。
+ * @param {string} code
+ * @param {string} message
+ * @returns {Error}
+ */
+export function namedError(code, message) {
+  const err = new Error(message)
+  err.name = code
+  err.code = code
+  return err
+}
